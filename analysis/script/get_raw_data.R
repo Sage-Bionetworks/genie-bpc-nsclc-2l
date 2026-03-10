@@ -74,16 +74,9 @@ release_saver <- function(
   )
 }
 
-# You could do a single release with the function like this (demo):
-# release_saver(
-#   cohort = pull(slice(release_dat, 1), cohort),
-#   release = pull(slice(release_dat, 1), release),
-#   synid = pull(slice(release_dat, 1), release_id)
-# )
-
 release_dat %<>%
   filter(cohort %in% "NSCLC") %>%
-  filter(release %in% c('2.0-public', '3.1-consortium'))
+  filter(release %in% c('3.1-consortium'))
 
 # We'll do them all at once:
 purrr::pwalk(
@@ -96,18 +89,37 @@ purrr::pwalk(
 )
 
 
-# Add in genomic data:
-synid_maf <- "syn9734426"
-synid_cna <- "syn9734422"
-synid_clin_samp <- "syn9735027"
+get_and_save_dataset <- function(
+  synid,
+  subfolder,
+  v = NULL
+) {
+  if (!is.null(v)) {
+    synid = paste0(synid, '.', v)
+  }
+  synGet(
+    entity = synid,
+    downloadLocation = here(
+      "data-raw",
+      subfolder
+    ),
+    ifcollision = "overwrite.local"
+  )
+}
+
+
+# Add in genomic data (all tied to 15.0 public)
+synid_maf <- "syn9734426.112"
+synid_cna <- "syn9734422.114"
+synid_clin_samp <- "syn9735027.121"
 # note: the bed file is newer than the maf version.
 # Just trying this to see if we can resolve some seq assay id issues.
-synid_bed <- 'syn9734427'
+synid_bed <- 'syn9734427.50'
 
 fs::dir_create('data-raw', 'main_genie')
 
 # Look at this beauty of versions:
-get_and_save_dataset(synid_maf, 'main_genie', v = 96)
-get_and_save_dataset(synid_cna, 'main_genie', v = 98)
-get_and_save_dataset(synid_clin_samp, 'main_genie', v = 105)
-get_and_save_dataset(synid_bed, 'main_genie', v = 93)
+get_and_save_dataset(synid_maf, 'main_genie')
+get_and_save_dataset(synid_cna, 'main_genie')
+get_and_save_dataset(synid_clin_samp, 'main_genie')
+get_and_save_dataset(synid_bed, 'main_genie')
