@@ -19,7 +19,7 @@ cohort %<>%
 # flow_track monitors attrition at each step for us.
 flow_track <- flow_record_helper(cohort, "BPC NSCLC v3.1")
 
-cpt <- ca_ind <- readr::read_csv(path(
+cpt <- readr::read_csv(path(
   bpc_dat_path,
   'cancer_panel_test_level_dataset.csv'
 ))
@@ -32,4 +32,6 @@ cohort <- filter(cohort, record_id %in% records_kras_g12d)
 
 flow_track %<>% flow_record_helper(cohort, "KRAS G12D", .)
 
-get_dmet_time(ca_ind)
+cohort <- cohort %>%
+  filter(record_id %in% (get_dmet_time(ca_ind)$record_id))
+flow_track %<>% flow_record_helper(cohort, "Metastatic", .)
