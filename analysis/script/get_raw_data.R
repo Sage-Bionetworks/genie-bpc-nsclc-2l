@@ -114,7 +114,7 @@ synid_cna <- "syn9734422.114"
 synid_clin_samp <- "syn9735027.121"
 # note: the bed file is newer than the maf version.
 # Just trying this to see if we can resolve some seq assay id issues.
-synid_bed <- 'syn9734427.50'
+synid_bed <- 'syn9734427.109'
 
 fs::dir_create('data-raw', 'main_genie')
 
