@@ -35,3 +35,12 @@ flow_track %<>% flow_record_helper(cohort, "KRAS G12D", .)
 cohort <- cohort %>%
   filter(record_id %in% (get_dmet_time(ca_ind)$record_id))
 flow_track %<>% flow_record_helper(cohort, "Metastatic", .)
+
+lot <- readr::read_rds(path('data', 'lot.rds'))
+cohort <- left_join(
+  cohort,
+  filter(lot, line_of_therapy %in% 2),
+  by = 'record_id'
+)
+cohort %<>% filter(!is.na(line_of_therapy))
+flow_track %<>% flow_record_helper(cohort, "Had 2L therapy", .)
