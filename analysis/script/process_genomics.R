@@ -13,19 +13,20 @@ clin_samp <- readr::read_tsv(
 )
 
 ca_ind <- readr::read_csv(
-  here('data-raw', 'PANC', 'cancer_level_dataset_index.csv')
+  here('data-raw', 'NSCLC', '3.1-consortium', 'cancer_level_dataset_index.csv')
 )
 
 # very rough filter just to get a workable MAF size:
-bpc_panc_samples <- clin_samp %>%
+bpc_nsclc_samples <- clin_samp %>%
   filter(PATIENT_ID %in% ca_ind$record_id) %>%
   pull(SAMPLE_ID)
 
 maf_relevant <- maf %>%
-  filter(Tumor_Sample_Barcode %in% bpc_panc_samples) %>%
+  filter(Tumor_Sample_Barcode %in% bpc_nsclc_samples) %>%
   filter(Hugo_Symbol %in% "KRAS") %>%
   filter(HGVSp_Short %in% "p.G12D")
 
+fs::dir_create(path('data', 'genomic'))
 readr::write_rds(
   maf_relevant,
   here('data', 'genomic', 'maf_rel.rds')
@@ -46,14 +47,14 @@ readr::write_rds(
 
 # Step 1:  Double check that all the panels used in BPC cover KRAS (likely yes).
 bed <- data.table::fread(
-  here('data-raw', 'main_genie', 'genie_combined_12.1-public.bed')
+  here('data-raw', 'main_genie', 'genie_combined.bed')
 )
 
 chk_kras_covered <- bed |>
   filter(
     SEQ_ASSAY_ID %in%
       (clin_samp %>%
-        filter(SAMPLE_ID %in% bpc_panc_samples) %>%
+        filter(SAMPLE_ID %in% bpc_nsclc_samples) %>%
         pull(SEQ_ASSAY_ID) %>%
         unique)
   ) |>
@@ -69,7 +70,7 @@ if (any(!pull(chk_kras_covered, kras_covered))) {
 
 # Find the samples that are some other sort of G12 variant:
 samp_g12_other <- maf %>%
-  filter(Tumor_Sample_Barcode %in% bpc_panc_samples) %>%
+  filter(Tumor_Sample_Barcode %in% bpc_nsclc_samples) %>%
   filter(Hugo_Symbol %in% "KRAS") %>%
   filter(str_detect(HGVSp_Short, "p.G12") & !(HGVSp_Short %in% "p.G12D")) %>%
   pull(Tumor_Sample_Barcode) %>%
@@ -80,7 +81,7 @@ samp_g12_other <- maf %>%
 intersect(samp_g12_other, samp_kras_g12d)
 
 kras_groups <- tibble(
-  sample_id = bpc_panc_samples
+  sample_id = bpc_nsclc_samples
 ) %>%
   mutate(
     alt_g12d = sample_id %in% samp_kras_g12d,
