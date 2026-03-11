@@ -44,3 +44,16 @@ cohort <- left_join(
 )
 cohort %<>% filter(!is.na(line_of_therapy))
 flow_track %<>% flow_record_helper(cohort, "Had 2L therapy", .)
+
+second_lines <- lot %>%
+  filter(line_of_therapy %in% 2, record_id %in% cohort$record_id)
+
+reg <- readr::read_csv(path(bpc_dat_path, 'regimen_cancer_level_dataset.csv'))
+cli_abort("need to add in the regimen start interval relative to birth date")
+reg_before_2l <- left_join(
+  select(second_lines, record_id, second_line_start_int = dob_reg_start_int),
+  reg,
+  by = 'record_id'
+)
+
+reg_before_2l %<>% filter(second_line_start_int > dob_reg_start_int)
