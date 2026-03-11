@@ -88,6 +88,24 @@ reg_before_2l <- left_join(
   by = 'regimen_drugs',
   relationship = 'many-to-one'
 )
+reg_before_2l_sum <- reg_before_2l %>%
+  group_by(record_id) %>%
+  summarize(
+    across(
+      matches('^is_'),
+      .fns = ~ any(.x, na.rm = T),
+      .names = 'any_{.col}_before_2l'
+    )
+  )
 
+cohort <- left_join(
+  cohort,
+  reg_before_2l_sum,
+  by = 'record_id'
+)
 
-reg_before_2l %<>% filter(second_line_start_int > dob_reg_start_int)
+cohort %<>% filter(any_is_plat_before_2l)
+flow_track %<>% flow_record_helper(cohort, "Plat chemo before 2L", .)
+
+cohort %<>% filter(any_is_anti_pd1_before_2l)
+flow_track %<>% flow_record_helper(cohort, "anti PD-1/PD-L1 before 2L", .)
