@@ -62,6 +62,13 @@ chemo_strings <- c(
   "vincristine",
   "vinorelbine"
 )
+chemo_strings <- c(
+  "carboplatin",
+  "cisplatin",
+  "docetaxel",
+  "oxaliplatin",
+  "paclitaxel"
+)
 anti_pd1_strings <- c(
   'pembrolizumab',
   'nivolumab',
