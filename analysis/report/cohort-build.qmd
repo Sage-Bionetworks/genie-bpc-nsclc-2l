@@ -37,7 +37,7 @@ theme_gtsummary_language("en", big.mark = "")
 
 ## Introduction
 
-This report addresses the feasibility of forming a cohort.  The goal cohort is finding a suitable control arm for an Astellas study of second line therapies in metastatic pancreatic ductal adenocarcinoma (PDAC).  We will leverage the existing curation in the pancreatic BPC (v1.2-consoritum) cohort.  Further curation may be needed if the initial submission goes well.
+This report addresses the feasibility of forming a cohort. The target population is non-small cell lung cancer (NSCLC) patients who have received second line therapy.  Additionally, they must have received anti-PD-1 or anti-PD-L1 therapy and platinum chemotherapy before the second line.  We will leverage the existing curation in the BPC (v3.1-consortium) cohort.  Additional lung cancer patients exist in main GENIE which may be used to expand the cohort with custom curation.
 
 ## Attrition table
 
@@ -66,13 +66,12 @@ flow_track_ft
 
 Details:
 
-- **BPC PANC v1.2** The biopharma collaborative pancreatic cancer dataset, version 1.2-consortium.
-- **PDAC tumor** - At least one sample for each person had the oncotree code for Pancreatic Adenocarcinoma (PAAD) or Adenosquamous Carcinoma of the Pancreas (PAASC), leaving out anyone with only Acinar Cell Carcinoma of the Pancreas (PAAC) and Undifferentiated Carcinoma of the Pancreas (UCP) samples.
-- **US sites only** Eliminated UHN (Canada) from the cohort.
-- **Only one cancer** The only cancer these people had is the pancreatic cancer that qualifies them for the cohort.  Only about 30 people had multiple cancers with pancreatic first, so it's almost certainly not worth it to open the can of worms that comes with trying to figure out which therapy counts for which cancer.
-- **Met dx. (anytime)** Limits to those who had a metastatic diagnosis at some point.  We will check the timing of the metastatic diagnosis with the index therapy later.
-- **KRAS G12D+** Had the mutation of interest in at least one NGS test (again, we check timing below).
-- **1L gem/5FU-based** - The first line of therapy includes either gemcitabine or 5-FU (Fluorouracil).  Using the wording in inclusion criterion #3 from the protocol, lines of therapy start with this exposure even if the exposure is before metastasis.
+- **BPC NSCLC v3.1** - The biopharma collaborative NSCLC cancer dataset, version 3.1-consortium.
+- **KRAS G12D+** - These people had the mutation of interest in at least one NGS test.
+- **Metastatic** - These people were diagnosed as metastatic at some point.  Lines of therapy usually begin at metastasis, so this is effectively required unless a different meaning was intended.
+- **Had 2L therapy** - These people had at least two lines on or after the metastatic diagnosis.  We eliminate exact duplicates from line consideration (e.g. Gem-Carbo followed by Gem-Carbo is not a new line).
+- **Plat chemo before 2L** These people had at least one platinum-containing therapy before their second line therapy. Platinum chemotherapy is defined as carboplatin, cisplatin or oxaliplatin for this analysis.
+- **anti PD-1/PD-L1 before 2L** These people had at least one anti-PD-1 or anti-PD-L1 therapy. Any regimen containing pembrolizumab
 - **Met @ index line** - the person is metastatic at the index therapy, which is either one or two therapies after the gem/5fu exposure.  That is, the index line is 2L or 3L.
 - **No investigational** - the person had no investigational agents included in any therapies from the gem/5-FU to the index therapy.
 - **Documented prog after 1L** - Progression is defined as having at least one radiologist summary indicating a worsening from the start of 1L to the start of the index therapy.
