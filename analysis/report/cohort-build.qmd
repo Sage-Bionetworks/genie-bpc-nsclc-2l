@@ -5,20 +5,20 @@ author: "Alex Paynter"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 editor_options:
   quarto:
-  chunk_output_type: console
+    chunk_output_type: console
 format:
   html:
-  embed-resources: true
-toc: true
-toc-depth: 4
-theme: sandstone 
+    embed-resources: true
+    toc: true
+    toc-depth: 4
+    theme: sandstone 
 execute:
   echo: false
-include: false
-warning: false
-message: false
-fig.width: 7
-fig.height: 5
+  include: false
+  warning: false
+  message: false
+  fig.width: 7
+  fig.height: 5
 ---
   
 ```{r}
@@ -64,172 +64,49 @@ flow_track_ft <- flow_track %>%
 flow_track_ft
 ```
 
+```{r}
+drug_string_lists <- readr::read_rds(here('data', 'drug_string_matches.rds'))
+```
+
+
 Details:
 
 - **BPC NSCLC v3.1** - The biopharma collaborative NSCLC cancer dataset, version 3.1-consortium.
 - **KRAS G12D+** - These people had the mutation of interest in at least one NGS test.
 - **Metastatic** - These people were diagnosed as metastatic at some point.  Lines of therapy usually begin at metastasis, so this is effectively required unless a different meaning was intended.
 - **Had 2L therapy** - These people had at least two lines on or after the metastatic diagnosis.  We eliminate exact duplicates from line consideration (e.g. Gem-Carbo followed by Gem-Carbo is not a new line).
-- **Plat chemo before 2L** These people had at least one platinum-containing therapy before their second line therapy. Platinum chemotherapy is defined as carboplatin, cisplatin or oxaliplatin for this analysis.
-- **anti PD-1/PD-L1 before 2L** These people had at least one anti-PD-1 or anti-PD-L1 therapy. Any regimen containing pembrolizumab,
-  'nivolumab',
-  'atezolizumab',
-  'durvalumab'
-- **Met @ index line** - the person is metastatic at the index therapy, which is either one or two therapies after the gem/5fu exposure.  That is, the index line is 2L or 3L.
-- **No investigational** - the person had no investigational agents included in any therapies from the gem/5-FU to the index therapy.
-- **Documented prog after 1L** - Progression is defined as having at least one radiologist summary indicating a worsening from the start of 1L to the start of the index therapy.
-- **G12D+ result before index** - This tests the timing of the G12D+ results relative to the index line.  Each person must have at least one report (result) showing they have a KRAS G12D alteration on or before the start of the index therapy.  See below.
+- **Plat chemo before 2L** These people had at least one platinum-containing therapy before their second line therapy. Platinum chemotherapy is defined as any regimen with {`r paste(drug_string_lists$plat, collapse = ', ')`} for this analysis.
+- **anti PD-1/PD-L1 before 2L** These people had at least one anti-PD-1 or anti-PD-L1 therapy. Any regimen containing {`r paste(drug_string_lists$anti_pd1, collapse = ', ')`} counts for this analysis.
+
+## Additional curation
+
+The GENIE project contains many NSCLC cases which have not undergone deep curation, specifically there are 33,900 NSCLC patients.  3549 have already been fully, curated which leaves 30,351 cases available to curate.  A projected expectation is **an additional 85 or so cases in that group which meet all criteria above, for a total of 95**.  
+
+Curation of this group could be fairly targeted because KRAS G12D status is known for all GENIE patients.
 
 ```{r}
-cohort_cpt_opt <- readr::read_rds(
-  here('data', 'drug', 'cohort_with_full_cpt_options.rds')
-)
-
-ft_cpt_opt <- cohort_cpt_opt %>%
-  summarize(
-    `No timing requirement` = n(),
-    `Pathology <= index` = sum(any_path_b4_reg),
-    `Order <= index` = sum(any_order_b4_reg),
-    `Report <= index` = sum(any_report_b4_reg)
-  ) %>%
-  t %>%
-  as_tibble(rownames = "Option", .name_repair = "universal") %>%
-  rename(n = 2) %>%
-  flextable(.) %>%
-  autofit(.)
-
+lot <- readr::read_rds(here('data', 'lot.rds'))
 ```
 
 
-## NGS timing
+## Second line therapies
 
-Next-generation sequencing tests (aka cancer panel tests) have three times recorded in GENIE:
-  
-  - Date of pathology procedure corresponding to the NGS (`path_proc_cpt_rep_days`).
-- Date of the order for the NGS test (`cpt_order_int`).
-- Date of the report (results) for the NGS test (`dob_cpt_report_days`).
+A separate request was made to list the most common second line therapies in our NSCLC cohort.  We use the same criteria as above: second line means second regimen on or after metastatic diagnosis, excepting regimens that are exactly the same as the previous one.
 
-Pathology procedure and report date are always filled, order date is sometimes missing (~5% in this cohort).
-
-Pathology is always on/before the order date, and the order date is always on/before the report date.  It follow that the smallest cohort is obtained (of these three options) when we require that the report is back before the index therapy.  That is what we're currently doing.  The following table shows the cohort size under the other options:
+Here are the top 20 most common second line therapies:
 
 ```{r}
 #| include: true
-
-ft_cpt_opt
-```
-
-
-
-
-```{r}
-demo_dat <- readr::read_rds(
-  here('data', 'baseline_char.rds')
-)
-```
-
-
-## Demographics
-
-The following table shows the demographics for the group meeting all inclusion criteria:
-
-```{r}
-#| include: true
-gtsummary::tbl_summary(
-  select(demo_dat, -record_id),
-  digits = list(
-    `Year of birth` ~ 0
-  )
-)
-```
-
-
-## Lines
-
-We begin counting regimens as lines of therapy when either of the following happens:
-
-1. Exposure to gemcitabine or 5-FU (even if they precede the metastatic diagnosis).
-2. Any therapy given in the metastatic setting.
-
-Additionally, we do not count consecutive regimens using the same drugs as a new line of therapy.  For example, if a patient's first three captured regimens are FOLFIRINOX, FOLFIRINOX, Gemcitabine + Nabpaclitaxel, then we would say their first line is FOLFIRINOX and the second line is Gemcitabine + Nabpaclitaxel.  That is, the second second administration of FOLFIRINOX is not a new line but the continuation of an old line.
-
-If desired, we can always expand this concept to say that similar regimens do not count as new lines.  For example, if someone goes from FOLFIRINOX to FOLFOX you could argue this dropping one for toxicity rather than a new line.
-
-```{r}
-lot <- readr::read_rds(here('data', 'drug', 'lot.rds'))
-cohort <- readr::read_rds(here('data', 'cohort_prog_verified.rds'))
-```
-
-The following table shows all the first line (gem/5-FU) therapies:
-  
-  ```{r}
-#| include: true
-
 lot %>%
-  filter(record_id %in% cohort$record_id) %>%
-  filter(line_of_therapy %in% 1) %>%
-  count(regimen_drugs, sort = TRUE) %>%
-  dt_wrapper(
-    .,
-    cap = "Regimens for the Gem/5-FU exposure (1L)",
-    page_length = 10
-  )
+  filter(line_of_therapy %in% 2) %>%
+  count(regimen_drugs, sort = T) %>%
+  slice(1:20) %>%
+  flextable(.) %>%
+  theme_booktabs() %>%
+  align(j = "n", align = "right") %>%
+  fontsize(size = 10) %>%
+  autofit() 
 ```
 
-This table shows the therapies used in the index line (either 2L or 3L):
-  
-  ```{r}
-#| include: true
+"Investigational Drug" is a masked therapy, often part of a clinical trial. 
 
-cohort %>%
-  select(record_id, line_of_therapy = index_line) %>%
-  left_join(., select(lot, record_id, line_of_therapy, regimen_drugs),
-            by = c('record_id', 'line_of_therapy')) %>% 
-  count(regimen_drugs, sort = TRUE) %>%
-  dt_wrapper(
-    .,
-    cap = "Regimens for index therapy (2L/3L)",
-    page_length = 10
-  )
-```
-
-**Note:** Lots of these are Gem and 5-FU, too, which may or may not be what the sponsor was expecting.
-
-
-```{r}
-met_sum <- readr::read_rds(
-  here('data', 'met_site_sum.rds')
-)
-```
-
-## Sites of metastasis
-
-The following table shows the number (%) of patients with a distant metastasis at select body regions when they begin the index therapy.  As discussed, more detailed information (ICD-O-3 codes) on metastatic sites can be mined from the imaging data if needed.
-
-```{r}
-#| include: true
-gtsummary::tbl_summary(
-  select(met_sum, -c(record_id))
-) %>%
-  modify_header(label = "**Met at index therapy**")
-
-```
-
-
-## Important changes
-
-- Jul 2025: Added tables: baseline characteristics and metastatic sites at index therapy.
-- Jul 2025: The first draft of our progression algorithm allowed for progression defined by a drug switch, only in participants that had no medical oncologist or imaging assessments after starting first line therapy.  This has been removed (**Impact: ~-3 cases**).
-- Jul 2025: Previously we only included progression events which occurred >=6 weeks and <=6 months after 1L therapy.  After learning this does not match the Astellas protocol we removed this (**Impact: ~+30 cases, OS longer**).
-- Jul 2025: Originally progression was determined by either medical oncologist or imaging note.  We changed to just imaging to align with the target trial progression definition and the definition of response, which both use imaging only (**Impact:-18 cases**).
-- Jul 2025:  Added the requirement that KRAS G12D+ results be back before the start of the index therapy.
-- **Impact:** -41 cases, left truncation is no longer present by definition, OS estimates are longer.  Aligns PFS and OS cohorts.
-
-
-## Miscellaneous notes
-
-- Using oncotree codes, we counted PAAD and PAASC as PDAC while PAAC and UCP are not.  Here are the four types present in the data:
-  - Pancreatic Adenocarcinoma (PAAD)
-- Adenosquamous Carcinoma of the Pancreas (PAASC)
-- Acinar Cell Carcinoma of the Pancreas (PAAC)
-- Undifferentiated Carcinoma of the Pancreas (UCP)
