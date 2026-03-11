@@ -46,8 +46,6 @@ cohort <- left_join(
   by = 'record_id'
 )
 cohort %<>% filter(!is.na(line_of_therapy))
-flow_track %<>% flow_record_helper(cohort, "[5] Had 2L therapy", .)
-
 # This point I'm making a call to take the first cancer sequence for everyone.
 # Empirically there's one case where someone has two cancer and they occur on the same day.
 # No reason to mess with join logic for that:
@@ -56,6 +54,9 @@ cohort %<>%
   arrange(ca_seq) %>%
   slice(1) %>%
   ungroup(.)
+
+flow_track %<>% flow_record_helper(cohort, "[5] Had 2L therapy", .)
+
 
 drug_strings <- readr::read_rds(here('data', 'drug_string_matches.rds'))
 cohort %<>%

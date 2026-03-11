@@ -76,8 +76,9 @@ Details:
 - **KRAS G12D+** - These people had the mutation of interest in at least one NGS test.
 - **Metastatic** - These people were diagnosed as metastatic at some point.  Lines of therapy usually begin at metastasis, so this is effectively required unless a different meaning was intended.
 - **Had 2L therapy** - These people had at least two lines on or after the metastatic diagnosis.  We eliminate exact duplicates from line consideration (e.g. Gem-Carbo followed by Gem-Carbo is not a new line).
-- **hemo before 2L** These people had at least one platinum-containing therapy before their second line therapy. Platinum chemotherapy is defined as any regimen with {`r paste(drug_string_lists$plat, collapse = ', ')`} for this analysis.
-- **anti PD-1/PD-L1 before 2L** These people had at least one anti-PD-1 or anti-PD-L1 therapy. Any regimen containing {`r paste(drug_string_lists$anti_pd1, collapse = ', ')`} counts for this analysis.
+- **2L contains chemo** - These people had at least one chemo agent in their second line, which we define as {`r paste(drug_string_lists$chemo, collapse = ', ')`}
+- **2L contains anti-PD-(L)1** These people had at least one anti-PD-1 or anti-PD-L1 agent in their second line, which we define as {`r paste(drug_string_lists$anti_pd1, collapse = ', ')`}.
+- **2L contains both** regimen has both and pd-(l)1 and chemo.
 
 
 ## Full 2L + inclusion breakdown
@@ -85,8 +86,16 @@ Details:
 The following table counts the number of people who had each regimen in the table above at step [5]:
 
 ```{r}
-flow_track %>% filter(str_detect(message, "Had 2L therapy")) %>%
-  pull(all_dat)
+flow_track %>% 
+  filter(str_detect(message, "Had 2L therapy")) %>%
+  pull(all_dat) %>%
+  .[[1]] %>%
+  count(regimen_drugs, sort = T) %>%
+  flextable(.) %>%
+  theme_booktabs() %>%
+  align(j = "n", align = "right") %>%
+  fontsize(size = 10) %>%
+  autofit() 
 ```
 
 
