@@ -19,6 +19,9 @@ cohort %<>%
 # flow_track monitors attrition at each step for us.
 flow_track <- flow_record_helper(cohort, "BPC NSCLC v3.1")
 
+cohort %<>% filter(!(institution %in% 'UHN'))
+flow_track %<>% flow_record_helper(cohort, "US cases only", .)
+
 cpt <- readr::read_csv(path(
   bpc_dat_path,
   'cancer_panel_test_level_dataset.csv'
