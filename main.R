@@ -1,2 +1,6 @@
 library(here)
 source(here('analysis', 'script', 'get_raw_data.R'))
+source(here('analysis', 'script', 'process_genomics.R'))
+source(here('analysis', 'script', 'create_lines.R'))
+source(here('analysis', 'script', 'drug_class_lists.R'))
+source(here('analysis', 'script', 'build_cohort.R'))
