@@ -17,10 +17,10 @@ cohort %<>%
   )
 
 # flow_track monitors attrition at each step for us.
-flow_track <- flow_record_helper(cohort, "BPC NSCLC v3.1")
+flow_track <- flow_record_helper(cohort, "[1] BPC NSCLC v3.1")
 
 cohort %<>% filter(!(institution %in% 'UHN'))
-flow_track %<>% flow_record_helper(cohort, "US cases only", .)
+flow_track %<>% flow_record_helper(cohort, "[2] US cases only", .)
 
 cpt <- readr::read_csv(path(
   bpc_dat_path,
@@ -33,7 +33,7 @@ records_kras_g12d <- cpt %>%
   unique
 cohort <- filter(cohort, record_id %in% records_kras_g12d)
 
-flow_track %<>% flow_record_helper(cohort, "KRAS G12D", .)
+flow_track %<>% flow_record_helper(cohort, "[3] KRAS G12D", .)
 
 cohort <- cohort %>%
   filter(record_id %in% (get_dmet_time(ca_ind)$record_id))
@@ -46,7 +46,7 @@ cohort <- left_join(
   by = 'record_id'
 )
 cohort %<>% filter(!is.na(line_of_therapy))
-flow_track %<>% flow_record_helper(cohort, "Had 2L therapy", .)
+flow_track %<>% flow_record_helper(cohort, "[4] Had 2L therapy", .)
 
 # This point I'm making a call to take the first cancer sequence for everyone.
 # Empirically there's one case where someone has two cancer and they occur on the same day.
@@ -126,14 +126,18 @@ cohort %<>%
   )
 
 
-# directly add it into the flow tracker.
+# directly add it into the flow tracker because these are now not-cumulative.
 flow_track <- cohort %>%
   filter(is_chemo) %>%
-  flow_record_helper(., "2L contains chemo", flow_track)
+  flow_record_helper(., "[5a] 2L contains chemo", flow_track)
 
 flow_track <- cohort %>%
   filter(is_anti_pd1) %>%
-  flow_record_helper(., "2L contains anti-PD-(L)1", flow_track)
+  flow_record_helper(., "[5b] 2L contains anti-PD-(L)1", flow_track)
+
+flow_track <- cohort %>%
+  filter(is_chemo & is_anti_pd1) %>%
+  flow_record_helper(., "[5c] 2L contains both", flow_track)
 
 cohort %<>% filter(any_is_anti_pd1_before_2l)
 flow_track %<>% flow_record_helper(cohort, "2L contains anti-PD-L1", .)
