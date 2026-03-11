@@ -103,6 +103,11 @@ cohort <- left_join(
   reg_before_2l_sum,
   by = 'record_id'
 )
+cohort %<>%
+  replace_na(list(
+    any_is_plat_before_2l = FALSE,
+    any_is_anti_pd1_before_2l = FALSE
+  ))
 
 cohort %<>% filter(any_is_plat_before_2l)
 flow_track %<>% flow_record_helper(cohort, "Plat chemo before 2L", .)
