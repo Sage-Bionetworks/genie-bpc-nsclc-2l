@@ -82,7 +82,12 @@ reg_before_2l <- left_join(
 reg_before_2l %<>% filter(dob_second_line_start_int > dob_reg_start_int)
 # Add the annotations about drug classes:
 reg_class <- readr::read_rds(path('data', 'reg_class.rds'))
-reg_class
+reg_before_2l <- left_join(
+  reg_before_2l,
+  distinct(select(reg_class, regimen_drugs, matches("^is_"))),
+  by = 'regimen_drugs',
+  relationship = 'many-to-one'
+)
 
 
 reg_before_2l %<>% filter(second_line_start_int > dob_reg_start_int)
