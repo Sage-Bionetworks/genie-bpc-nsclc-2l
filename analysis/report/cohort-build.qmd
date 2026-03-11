@@ -86,6 +86,7 @@ Details:
 The following table counts the number of people who had each regimen in the table above at step [5]:
 
 ```{r}
+#| include: true
 flow_track %>% 
   filter(str_detect(message, "Had 2L therapy")) %>%
   pull(all_dat) %>%
