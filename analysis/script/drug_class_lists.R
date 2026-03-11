@@ -12,7 +12,56 @@ drug_exp <- reg %>%
   filter(!is.na(drug_name)) %>%
   count(drug_name, sort = T)
 
-plat_strings <- c('carboplatin', 'cisplatin', 'oxaliplatin')
+cat(drug_exp$drug_name, file = 'temp_drug_names.txt', sep = '\n')
+
+chemo_strings <- c(
+  "arsenic",
+  "azacitidine",
+  "bendamustine",
+  "bleomycin",
+  "busulfan",
+  "cabazitaxel",
+  "capecitabine",
+  "carboplatin",
+  "chlorambucil",
+  "cisplatin",
+  "cyclophosphamide",
+  "cytarabine",
+  "dacarbazine",
+  "dactinomycin",
+  "daunorubicin",
+  "decitabine",
+  "docetaxel",
+  "doxorubicin",
+  "epirubicin",
+  "etoposide",
+  "floxuridine",
+  "fludarabine",
+  "fluorouracil",
+  "gemcitabine",
+  "hydroxyurea",
+  "ifosfamide",
+  "irinotecan",
+  "ixabepilone",
+  "liposome",
+  "lomustine",
+  "lurbinectedin",
+  "mechlorethamine",
+  "melphalan",
+  "methotrexate",
+  "mitomycin",
+  "nabpaclitaxel",
+  "oxaliplatin",
+  "paclitaxel",
+  "pegylated",
+  "pemetrexed",
+  "procarbazine",
+  "temozolomide",
+  "thiotepa",
+  "vinblastine",
+  "vincristine",
+  "vinorelbine"
+)
 anti_pd1_strings <- c(
   'pembrolizumab',
   'nivolumab',
@@ -23,7 +72,7 @@ anti_pd1_strings <- c(
 drug_exp <- drug_exp %>%
   mutate(
     .drug_lower = tolower(drug_name),
-    is_plat = str_detect(.drug_lower, paste(plat_strings, collapse = '|')),
+    is_chemo = str_detect(.drug_lower, paste(chemo_strings, collapse = '|')),
     is_anti_pd1 = str_detect(
       .drug_lower,
       paste(anti_pd1_strings, collapse = '|')
@@ -41,7 +90,7 @@ reg_class <- reg %>%
   select(cohort, record_id, ca_seq, regimen_number, regimen_drugs) %>%
   mutate(
     .reg_lower = tolower(regimen_drugs),
-    is_plat = str_detect(.reg_lower, paste(plat_strings, collapse = '|')),
+    is_chemo = str_detect(.reg_lower, paste(chemo_strings, collapse = '|')),
     is_anti_pd1 = str_detect(
       .reg_lower,
       paste(anti_pd1_strings, collapse = '|')
@@ -55,6 +104,6 @@ readr::write_rds(
 )
 
 readr::write_rds(
-  list(plat = plat_strings, anti_pd1 = anti_pd1_strings),
+  list(chemo = chemo_strings, anti_pd1 = anti_pd1_strings),
   here('data', 'drug_string_matches.rds')
 )
