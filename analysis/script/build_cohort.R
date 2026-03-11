@@ -114,3 +114,8 @@ flow_track %<>% flow_record_helper(cohort, "Plat chemo before 2L", .)
 
 cohort %<>% filter(any_is_anti_pd1_before_2l)
 flow_track %<>% flow_record_helper(cohort, "anti PD-1/PD-L1 before 2L", .)
+
+readr::write_rds(
+  flow_track,
+  path('data', 'flow_track.rds')
+)
