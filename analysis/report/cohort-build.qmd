@@ -71,7 +71,10 @@ Details:
 - **Metastatic** - These people were diagnosed as metastatic at some point.  Lines of therapy usually begin at metastasis, so this is effectively required unless a different meaning was intended.
 - **Had 2L therapy** - These people had at least two lines on or after the metastatic diagnosis.  We eliminate exact duplicates from line consideration (e.g. Gem-Carbo followed by Gem-Carbo is not a new line).
 - **Plat chemo before 2L** These people had at least one platinum-containing therapy before their second line therapy. Platinum chemotherapy is defined as carboplatin, cisplatin or oxaliplatin for this analysis.
-- **anti PD-1/PD-L1 before 2L** These people had at least one anti-PD-1 or anti-PD-L1 therapy. Any regimen containing pembrolizumab
+- **anti PD-1/PD-L1 before 2L** These people had at least one anti-PD-1 or anti-PD-L1 therapy. Any regimen containing pembrolizumab,
+  'nivolumab',
+  'atezolizumab',
+  'durvalumab'
 - **Met @ index line** - the person is metastatic at the index therapy, which is either one or two therapies after the gem/5fu exposure.  That is, the index line is 2L or 3L.
 - **No investigational** - the person had no investigational agents included in any therapies from the gem/5-FU to the index therapy.
 - **Documented prog after 1L** - Progression is defined as having at least one radiologist summary indicating a worsening from the start of 1L to the start of the index therapy.

@@ -55,6 +55,6 @@ readr::write_rds(
 )
 
 readr::write_rds(
-  list(plat = plat_strings, anti_pd1 = anti_pd1_strings)
+  list(plat = plat_strings, anti_pd1 = anti_pd1_strings),
   here('data', 'drug_string_matches.rds')
 )
