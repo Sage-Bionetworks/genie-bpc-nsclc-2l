@@ -45,15 +45,34 @@ cohort <- left_join(
 cohort %<>% filter(!is.na(line_of_therapy))
 flow_track %<>% flow_record_helper(cohort, "Had 2L therapy", .)
 
+
 second_lines <- lot %>%
   filter(line_of_therapy %in% 2, record_id %in% cohort$record_id)
 
 reg <- readr::read_csv(path(bpc_dat_path, 'regimen_cancer_level_dataset.csv'))
-cli_abort("need to add in the regimen start interval relative to birth date")
+reg %<>%
+  mutate(
+    dob_reg_start_int = pmin(
+      drugs_startdt_int_1,
+      drugs_startdt_int_2,
+      drugs_startdt_int_3,
+      drugs_startdt_int_4,
+      drugs_startdt_int_5,
+      na.rm = T
+    )
+  )
 reg_before_2l <- left_join(
-  select(second_lines, record_id, second_line_start_int = dob_reg_start_int),
+  select(
+    second_lines,
+    record_id,
+    dob_second_line_start_int = dob_reg_start_int
+  ),
   reg,
   by = 'record_id'
 )
+reg_before_2l %<>% filter(dob_second_line_start_int > dob_reg_start_int)
+# Add the annotations about drug classes:
+reg_class <- readr::read_rds(path('data', 'reg_class.rds'))
+
 
 reg_before_2l %<>% filter(second_line_start_int > dob_reg_start_int)
