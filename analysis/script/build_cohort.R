@@ -45,6 +45,15 @@ cohort <- left_join(
 cohort %<>% filter(!is.na(line_of_therapy))
 flow_track %<>% flow_record_helper(cohort, "Had 2L therapy", .)
 
+# This point I'm making a call to take the first cancer sequence for everyone.
+# Empirically there's one case where someone has two cancer and they occur on the same day.
+# No reason to mess with join logic for that:
+cohort %<>%
+  group_by(record_id) %>%
+  arrange(ca_seq) %>%
+  slice(1) %>%
+  ungroup(.)
+
 
 second_lines <- lot %>%
   filter(line_of_therapy %in% 2, record_id %in% cohort$record_id)
@@ -73,6 +82,7 @@ reg_before_2l <- left_join(
 reg_before_2l %<>% filter(dob_second_line_start_int > dob_reg_start_int)
 # Add the annotations about drug classes:
 reg_class <- readr::read_rds(path('data', 'reg_class.rds'))
+reg_class
 
 
 reg_before_2l %<>% filter(second_line_start_int > dob_reg_start_int)
