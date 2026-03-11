@@ -57,61 +57,6 @@ cohort %<>%
   slice(1) %>%
   ungroup(.)
 
-
-# second_lines <- lot %>%
-#   filter(line_of_therapy %in% 2, record_id %in% cohort$record_id)
-#
-# reg <- readr::read_csv(path(bpc_dat_path, 'regimen_cancer_level_dataset.csv'))
-# reg %<>%
-#   mutate(
-#     dob_reg_start_int = pmin(
-#       drugs_startdt_int_1,
-#       drugs_startdt_int_2,
-#       drugs_startdt_int_3,
-#       drugs_startdt_int_4,
-#       drugs_startdt_int_5,
-#       na.rm = T
-#     )
-#   )
-# reg_before_2l <- left_join(
-#   select(
-#     second_lines,
-#     record_id,
-#     dob_second_line_start_int = dob_reg_start_int
-#   ),
-#   reg,
-#   by = 'record_id'
-# )
-# reg_before_2l %<>% filter(dob_second_line_start_int > dob_reg_start_int)
-# # Add the annotations about drug classes:
-# reg_class <- readr::read_rds(path('data', 'reg_class.rds'))
-# reg_before_2l <- left_join(
-#   reg_before_2l,
-#   distinct(select(reg_class, regimen_drugs, matches("^is_"))),
-#   by = 'regimen_drugs',
-#   relationship = 'many-to-one'
-# )
-# reg_before_2l_sum <- reg_before_2l %>%
-#   group_by(record_id) %>%
-#   summarize(
-#     across(
-#       matches('^is_'),
-#       .fns = ~ any(.x, na.rm = T),
-#       .names = 'any_{.col}_before_2l'
-#     )
-#   )
-#
-# cohort <- left_join(
-#   cohort,
-#   reg_before_2l_sum,
-#   by = 'record_id'
-# )
-# cohort %<>%
-#   replace_na(list(
-#     any_is_plat_before_2l = FALSE,
-#     any_is_anti_pd1_before_2l = FALSE
-#   ))
-
 drug_strings <- readr::read_rds(here('data', 'drug_string_matches.rds'))
 cohort %<>%
   mutate(
@@ -138,9 +83,6 @@ flow_track <- cohort %>%
 flow_track <- cohort %>%
   filter(is_chemo & is_anti_pd1) %>%
   flow_record_helper(., "[5c] 2L contains both", flow_track)
-
-cohort %<>% filter(any_is_anti_pd1_before_2l)
-flow_track %<>% flow_record_helper(cohort, "2L contains anti-PD-L1", .)
 
 readr::write_rds(
   flow_track,
