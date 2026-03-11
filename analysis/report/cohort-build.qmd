@@ -72,6 +72,7 @@ drug_string_lists <- readr::read_rds(here('data', 'drug_string_matches.rds'))
 Details:
 
 - **BPC NSCLC v3.1** - The biopharma collaborative NSCLC cancer dataset, version 3.1-consortium.
+- **US sites only** - UHN (Canada) is removed from the data.
 - **KRAS G12D+** - These people had the mutation of interest in at least one NGS test.
 - **Metastatic** - These people were diagnosed as metastatic at some point.  Lines of therapy usually begin at metastasis, so this is effectively required unless a different meaning was intended.
 - **Had 2L therapy** - These people had at least two lines on or after the metastatic diagnosis.  We eliminate exact duplicates from line consideration (e.g. Gem-Carbo followed by Gem-Carbo is not a new line).
