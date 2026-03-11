@@ -37,7 +37,7 @@ flow_track %<>% flow_record_helper(cohort, "[3] KRAS G12D", .)
 
 cohort <- cohort %>%
   filter(record_id %in% (get_dmet_time(ca_ind)$record_id))
-flow_track %<>% flow_record_helper(cohort, "Metastatic", .)
+flow_track %<>% flow_record_helper(cohort, "[4] Metastatic", .)
 
 lot <- readr::read_rds(path('data', 'lot.rds'))
 cohort <- left_join(
@@ -46,7 +46,7 @@ cohort <- left_join(
   by = 'record_id'
 )
 cohort %<>% filter(!is.na(line_of_therapy))
-flow_track %<>% flow_record_helper(cohort, "[4] Had 2L therapy", .)
+flow_track %<>% flow_record_helper(cohort, "[5] Had 2L therapy", .)
 
 # This point I'm making a call to take the first cancer sequence for everyone.
 # Empirically there's one case where someone has two cancer and they occur on the same day.
@@ -74,15 +74,15 @@ cohort %<>%
 # directly add it into the flow tracker because these are now not-cumulative.
 flow_track <- cohort %>%
   filter(is_chemo) %>%
-  flow_record_helper(., "[5a] 2L contains chemo", flow_track)
+  flow_record_helper(., "[6a] 2L contains chemo", flow_track)
 
 flow_track <- cohort %>%
   filter(is_anti_pd1) %>%
-  flow_record_helper(., "[5b] 2L contains anti-PD-(L)1", flow_track)
+  flow_record_helper(., "[6b] 2L contains anti-PD-(L)1", flow_track)
 
 flow_track <- cohort %>%
   filter(is_chemo & is_anti_pd1) %>%
-  flow_record_helper(., "[5c] 2L contains both", flow_track)
+  flow_record_helper(., "[6c] 2L contains both", flow_track)
 
 readr::write_rds(
   flow_track,
