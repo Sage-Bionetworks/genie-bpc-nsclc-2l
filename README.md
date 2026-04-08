@@ -1,6 +1,8 @@
 
 # Feasibility analysis for 2L NSCLC
 
+![GENIE logo](genie-logo-portal.jpeg)
+
 # Overview
 
 A feasibility analysis for Revolution Medicines examining NSCLC 2L therapies in KRAS G12D+ patients.  The target population is non-small cell lung cancer (NSCLC) patients who have received second line therapy, having also received anti-PD-1 or anti-PD-L1 therapy and platinum chemotherapy before the second line.  We leverage the existing curation in the BPC (v3.1-consortium) NSCLC cohort.  Originally completed by Alex Paynter at Sage Bionetworks.
